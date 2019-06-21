@@ -33,12 +33,13 @@ class NedResource:
     assert tag in ENTITY_TYPES, 'Unknown tag {}. Should be one of: {}'.format(tag, ', '.join(ENTITY_TYPES))
 
 class NedResultEntity:
-  def __init__(self, entity: str, score: float, left: int, right: int, resources: List[NedResource]):
+  def __init__(self, entity: str, score: float, left: int, right: int, resources: List[NedResource], matched_resource: NedResource = None):
     self.entity = entity
     self.score = score
     self.left = left
     self.right = right
     self.resources = resources
+    self.matched_resource = matched_resource
 
     assert left < right, 'Left ({}) must be less than right ({})'.format(left, right)
 

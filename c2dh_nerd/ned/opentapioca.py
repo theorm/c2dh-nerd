@@ -42,14 +42,15 @@ def as_ned_resource(t):
 
 def as_ned_result_entity(annotation, text):
   start, end = annotation['start'], annotation['end']
-  
+  resources = [as_ned_resource(t) for t in annotation['tags']]
 
   return NedResultEntity(
     entity = text[start:end],
     score = annotation['log_likelihood'],
     left = start,
     right = end,
-    resources = [as_ned_resource(t) for t in annotation['tags']]
+    resources = resources,
+    matched_resource = resources[0]
   )
 
 class OpenTapiocaNed(NED):
@@ -72,5 +73,4 @@ class OpenTapiocaNed(NED):
 
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
       async with session.post(self._endpoint, data=req) as resp:
-        print(resp)
         return await resp.json()
