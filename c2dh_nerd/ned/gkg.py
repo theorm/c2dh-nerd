@@ -1,8 +1,16 @@
 import os
+import json
+import hashlib
 import aiohttp
 import urllib.parse
 from .ned import NED, TextOrSentences, sentences_to_text
 from .result import NedResult, NedResultEntity, NedResource
+
+DEFAULT_EXPIRATION_SEC = 30 * 24 * 60 * 60 # 30 days
+
+def get_cache_key(text):
+  text_hash = hashlib.blake2b(bytes(text, 'utf-8')).hexdigest()
+  return 'gke:{}'.format(text_hash)
 
 def get_tag_from_types(types):
   if 'Person' in types:
@@ -45,21 +53,32 @@ def as_ned_result_entity(items, text):
 MAX_ATTEMPTS = 5
 
 class GoogleKnowledgeGraphNed(NED):
-  def __init__(self):
+  def __init__(self, cache = None):
     self._endpoint = 'https://content-kgsearch.googleapis.com/v1/entities:search?prefix=true&query={}&key={}'
     self._api_key = os.environ['GKG_API_KEY']
+    self._cache = cache
 
   async def extract(self, text: TextOrSentences, attempt = 0) -> NedResult:
     full_text = sentences_to_text(text)
-    response = await self.get_gkg_response(full_text)
 
-    if response.get('error', {}).get('code', None) == 503:
-      if attempt < MAX_ATTEMPTS:
-        # try again
-        return await self.extract(text, attempt = attempt + 1)
-      else:
-        raise Exception('Had {} attempts getting data. Failing for good. Last error {}'.format(attempt, response.get('error', {}).get('message', None)))
-    
+    cache_key = get_cache_key(full_text)
+    if self._cache and cache_key in self._cache:
+      # print('GKE Cache hit for "{}": {}'.format(full_text, cache_key))
+      response = json.loads(self._cache[cache_key])
+    else:
+      response, status = await self.get_gkg_response(full_text)
+      if status < 400:
+        self._cache.set(cache_key, json.dumps(response), expire = DEFAULT_EXPIRATION_SEC)
+
+      if status >= 500:
+        if attempt < MAX_ATTEMPTS:
+          # try again
+          return await self.extract(text, attempt = attempt + 1)
+        else:
+          raise Exception('Had {} attempts getting data. Failing for good. Last error ({}) {}'.format(attempt, status, response.get('error', {}).get('message', None)))
+      elif status >= 400:
+        raise Exception('Received an error from GKE ({}): {}'.format(status, json.dumps(response)))
+
     if 'itemListElement' not in response:
       print('ERR: No "itemListElement" in response ({})'.format(full_text), response)
 
@@ -73,4 +92,5 @@ class GoogleKnowledgeGraphNed(NED):
       url = self._endpoint.format(urllib.parse.quote(text), self._api_key)
 
       async with session.get(url) as resp:
-        return await resp.json()
+        body = await resp.json()
+        return body, resp.status

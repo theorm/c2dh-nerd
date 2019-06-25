@@ -1,4 +1,7 @@
+import os
 from typing import Callable
+from diskcache import Cache
+
 from .ner.flair import FlairNer
 from .ner.spacy import SpacyNer
 from .ned.opentapioca import OpenTapiocaNed
@@ -13,7 +16,17 @@ def lazy_factory(tag: str, app, constructor: Callable[[], object]):
     return app[instance_tag]
   return factory
 
+def get_cache():
+  cache_location = os.path.realpath(os.environ.get('CACHE_DIR', os.path.join(os.getcwd(), 'cache')))
+  print('Using "{}" as cache location'.format(cache_location))
+  assert os.path.isdir(cache_location), 'Cache directory does not exist'
+  return Cache(cache_location)
+
 def add_context(app):
+  # cache
+  app['cache'] = get_cache()
+
+  # NED/NER
   app['ner_flair'] = lazy_factory('ner_flair', app, FlairNer)
 
   app['ner_spacy_small_en'] = lazy_factory('ner_spacy_small_en', app, lambda: SpacyNer('small_en'))
@@ -21,7 +34,7 @@ def add_context(app):
   app['ner_spacy_large_en'] = lazy_factory('ner_spacy_large_en', app, lambda: SpacyNer('large_en'))
 
   app['ned_opentapioca'] = lazy_factory('ned_opentapioca', app, OpenTapiocaNed)
-  app['ned_gkg'] = lazy_factory('ned_gkg', app, GoogleKnowledgeGraphNed)
+  app['ned_gkg'] = lazy_factory('ned_gkg', app, lambda: GoogleKnowledgeGraphNed(cache=app['cache']))
 
   app['ned_fusion-spacy_large_en-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_spacy_large_en']()], [app['ned_gkg']()]))
 

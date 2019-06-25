@@ -98,3 +98,7 @@ ENV/
 
 # mkdocs documentation
 /site
+
+
+# Cache
+cache
