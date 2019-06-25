@@ -4,7 +4,9 @@ import json
 from ..ned import NED
 
 METHODS = [
-  'opentapioca'
+  'opentapioca',
+  'gkg',
+  'fusion-spacy_large_en-gkg'
 ]
 
 async def handler(request):

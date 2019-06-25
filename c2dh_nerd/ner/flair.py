@@ -20,7 +20,7 @@ class FlairNer(NER):
   def __init__(self):
     self._tagger = SequenceTagger.load('ner')
 
-  def extract(self, text: TextOrSentences) -> NerResult:
+  async def extract(self, text: TextOrSentences) -> NerResult:
     sentences_and_offsets = text_to_sentences(text)
     entities = [self._extract_sentence(sentence, offset) for sentence, offset in sentences_and_offsets]
     flattened_entities = list(itertools.chain.from_iterable(entities))

@@ -23,6 +23,6 @@ def sentences_to_text(text: TextOrSentences) -> str:
   return ''.join(text)
 
 class NER:
-  def extract(self, text: TextOrSentences) -> NerResult:
+  async def extract(self, text: TextOrSentences) -> NerResult:
     raise NotImplementedError()
 

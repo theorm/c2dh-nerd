@@ -4,7 +4,10 @@ import json
 from ..ner import NER
 
 METHODS = [
-  'flair'
+  'flair',
+  'spacy_small_en',
+  'spacy_small_multi',
+  'spacy_large_en'
 ]
 
 async def handler(request):
@@ -17,7 +20,7 @@ async def handler(request):
 
   ner: NER = request.app['ner_{}'.format(method)]()
 
-  result = ner.extract(text)
+  result = await ner.extract(text)
 
   return web.json_response(
     result,
