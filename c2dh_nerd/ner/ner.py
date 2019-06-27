@@ -8,10 +8,15 @@ TextOrSentences = ('TextOrSentences', str, List[str])
 def text_to_sentences(text: TextOrSentences) -> List[Tuple[str, int]]:
   if isinstance(text, str):
 
-    last_sentence_offset = { 'v': 0 }
+    last_sentence_offset = { 'v': 0, 'text': str(text) }
     def get_sentence_and_offset(sent):
-      x = (sent, last_sentence_offset['v'])
-      last_sentence_offset['v'] += len(sent)
+      span_start = last_sentence_offset['text'].find(sent)
+      span_end = span_start + len(sent) + 1
+
+      offset = last_sentence_offset['v'] + span_start
+      x = (sent, offset)
+      last_sentence_offset['text'] = last_sentence_offset['text'][span_end:]
+      last_sentence_offset['v'] += span_end
       return x
 
     return [get_sentence_and_offset(sent) for sent in split_single(text) if len(sent.strip()) > 0]

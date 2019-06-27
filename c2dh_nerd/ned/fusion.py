@@ -36,10 +36,18 @@ class FusionNed(NED):
     ner_result = await self._ner.extract(text)
     entities = [e for e in ner_result.entities if has_text(e)]
 
+    if len(entities) == 1:
+      e = entities[0]
+      full_text = sentences_to_text(text)
+      entity_length_ratio = len(e.entity) / len(full_text)
+      if entity_length_ratio > 0.5:
+        print('A single very long entity detected ("{}") in {}'.format(e.entity, full_text))
+
     ned_results = await asyncio.gather(*[
       self._ned.extract(e.entity)
       for e in entities
     ])
+
 
     entity_and_ned_result_list = zip(entities, ned_results)
 

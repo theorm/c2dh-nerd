@@ -75,7 +75,7 @@ class GoogleKnowledgeGraphNed(NED):
           # try again
           return await self.extract(text, attempt = attempt + 1)
         else:
-          raise Exception('Had {} attempts getting data. Failing for good. Last error ({}) {}'.format(attempt, status, response.get('error', {}).get('message', None)))
+          raise Exception('Had {} attempts getting data. Failing for good. Last error ({}) {}'.format(attempt, status, json.dumps(response)))
       elif status >= 400:
         raise Exception('Received an error from GKE ({}): {}'.format(status, json.dumps(response)))
 

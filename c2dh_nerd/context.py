@@ -37,5 +37,6 @@ def add_context(app):
   app['ned_gkg'] = lazy_factory('ned_gkg', app, lambda: GoogleKnowledgeGraphNed(cache=app['cache']))
 
   app['ned_fusion-spacy_large_en-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_spacy_large_en']()], [app['ned_gkg']()]))
+  app['ned_fusion-flair-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_flair']()], [app['ned_gkg']()]))
 
   return app

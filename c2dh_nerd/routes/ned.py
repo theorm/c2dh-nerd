@@ -1,12 +1,14 @@
 from aiohttp import web
 import json
+from timeit import default_timer as timer
 
 from ..ned import NED
 
 METHODS = [
   'opentapioca',
   'gkg',
-  'fusion-spacy_large_en-gkg'
+  'fusion-spacy_large_en-gkg',
+  'fusion-flair-gkg'
 ]
 
 async def handler(request):
@@ -19,7 +21,12 @@ async def handler(request):
 
   ned: NED = request.app['ned_{}'.format(method)]()
 
+  start = timer()
   result = await ned.extract(text)
+  end = timer()
+
+  time_elapsed = end - start
+  result.time_elapsed_seconds = time_elapsed
 
   return web.json_response(
     result,

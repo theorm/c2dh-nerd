@@ -1,5 +1,6 @@
 from aiohttp import web
 import json
+from timeit import default_timer as timer
 
 from ..ner import NER
 
@@ -20,7 +21,12 @@ async def handler(request):
 
   ner: NER = request.app['ner_{}'.format(method)]()
 
+  start = timer()
   result = await ner.extract(text)
+  end = timer()
+
+  time_elapsed = end - start
+  result.time_elapsed_seconds = time_elapsed
 
   return web.json_response(
     result,

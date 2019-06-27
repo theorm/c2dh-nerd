@@ -1,9 +1,11 @@
-import itertools
+from typing import List, Tuple
 from flair.data import Sentence
 from flair.models import SequenceTagger
 
 from .ner import NER, TextOrSentences, text_to_sentences, sentences_to_text
 from .result import NerResult, NerResultEntity
+
+flatten = lambda l: [item for sublist in l for item in sublist]
 
 def as_ner_result_entity(span, offset: int) -> NerResultEntity:
   # print('S', span, dir(span), span.__dict__)
@@ -22,13 +24,14 @@ class FlairNer(NER):
 
   async def extract(self, text: TextOrSentences) -> NerResult:
     sentences_and_offsets = text_to_sentences(text)
-    entities = [self._extract_sentence(sentence, offset) for sentence, offset in sentences_and_offsets]
-    flattened_entities = list(itertools.chain.from_iterable(entities))
-    return NerResult(sentences_to_text(text), flattened_entities)
+    entities = self._extract_sentences(sentences_and_offsets)
+    return NerResult(sentences_to_text(text), entities)
 
-  def _extract_sentence(self, sentence: str, offset: int):
-    flair_sentence = Sentence(sentence)
-    self._tagger.predict(flair_sentence)
-  
-    return [as_ner_result_entity(s, offset) for s in flair_sentence.get_spans('ner')]
+  def _extract_sentences(self, sentence_and_offset_list: List[Tuple[str, int]]):
+    flair_sentences = [Sentence(sentence) for sentence, _ in sentence_and_offset_list]
+    self._tagger.predict(flair_sentences)
 
+    return flatten([
+      [as_ner_result_entity(s, offset) for s in flair_sentence.get_spans('ner')]
+      for flair_sentence, (_, offset) in zip(flair_sentences, sentence_and_offset_list)
+    ])
