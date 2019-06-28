@@ -30,6 +30,7 @@ def as_ned_resource(item):
 
   return NedResource(
     score = item.get('resultScore'),
+    model = 'gkg',
     tag = tag,
     label = result.get('name'),
     description = result.get('description', ''),
@@ -58,8 +59,9 @@ class GoogleKnowledgeGraphNed(NED):
     self._api_key = os.environ['GKG_API_KEY']
     self._cache = cache
 
-  async def extract(self, text: TextOrSentences, attempt = 0) -> NedResult:
+  async def extract(self, text: TextOrSentences, **kwargs) -> NedResult:
     full_text = sentences_to_text(text)
+    attempt = kwargs.get('attempt', 0)
 
     cache_key = get_cache_key(full_text)
     if self._cache and cache_key in self._cache:

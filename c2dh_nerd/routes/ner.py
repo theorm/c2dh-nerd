@@ -3,6 +3,7 @@ import json
 from timeit import default_timer as timer
 
 from ..ner import NER
+from ..util.routes import json_dumps
 
 METHODS = [
   'flair',
@@ -30,5 +31,5 @@ async def handler(request):
 
   return web.json_response(
     result,
-    dumps = lambda x: json.dumps(x, default=lambda o: o.__dict__)
+    dumps = json_dumps
   )

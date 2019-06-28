@@ -34,6 +34,7 @@ def as_ned_resource(t):
 
   return NedResource(
     score = t['rank'],
+    model = 'opentapioca',
     tag = tag,
     label = t['label'][0],
     description = t['desc'],
@@ -57,7 +58,7 @@ class OpenTapiocaNed(NED):
   def __init__(self):
     self._endpoint = 'https://opentapioca.org/api/annotate'
 
-  async def extract(self, text: TextOrSentences) -> NedResult:
+  async def extract(self, text: TextOrSentences, **kwargs) -> NedResult:
     full_text = sentences_to_text(text)
     opentapioca_response = await self.get_opentapioca_response(full_text)
 

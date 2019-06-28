@@ -11,6 +11,7 @@ ENTITY_TYPES = [
 class NedResource:
   def __init__(self, 
     score: float, # higher is better
+    model: str,
     tag: str,
     label: str, 
     description: str = None,
@@ -19,8 +20,11 @@ class NedResource:
     dbpedia_uri: str = None,
     google_kg_id: str = None,
     wikipedia_uri: str = None,
+    viaf_uri: str = None,
+    metadata: dict = {}
   ):
     self.score = score
+    self.model = model
     self.tag = tag
     self.label = label
     self.description = description
@@ -29,6 +33,8 @@ class NedResource:
     self.dbpedia_uri = dbpedia_uri
     self.google_kg_id = google_kg_id
     self.wikipedia_uri = wikipedia_uri
+    self.viaf_uri = viaf_uri
+    self.metadata = metadata
 
     assert tag in ENTITY_TYPES, 'Unknown tag {}. Should be one of: {}'.format(tag, ', '.join(ENTITY_TYPES))
 

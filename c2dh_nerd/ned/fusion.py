@@ -1,9 +1,11 @@
 import re
 import asyncio
 from .ned import NED, TextOrSentences, sentences_to_text
-from .result import NedResult, NedResultEntity, NedResource
+from .result import NedResult, NedResultEntity
 
 ANY_TEXT_RE = re.compile(r'.*\w.*', re.M)
+
+flatten = lambda l: [item for sublist in l for item in sublist]
 
 def has_text(ner_entity):
   return ANY_TEXT_RE.match(ner_entity.entity) is not None
@@ -28,11 +30,11 @@ def merge_as_ned_result_entity(ner_entity, ned_entity):
 class FusionNed(NED):
   def __init__(self, ners, neds):
     assert len(ners) == 1, 'Only 1 NER is supported at the moment'
-    assert len(neds) == 1, 'Only 1 NED is supported at the moment'
+    assert len(neds) > 0, 'At least 1 NED is required'
     self._ner = ners[0]
-    self._ned = neds[0]
+    self._neds = neds
 
-  async def extract(self, text: TextOrSentences) -> NedResult:
+  async def extract(self, text: TextOrSentences, **kwargs) -> NedResult:
     ner_result = await self._ner.extract(text)
     entities = [e for e in ner_result.entities if has_text(e)]
 
@@ -43,14 +45,36 @@ class FusionNed(NED):
       if entity_length_ratio > 0.5:
         print('A single very long entity detected ("{}") in {}'.format(e.entity, full_text))
 
-    ned_results = await asyncio.gather(*[
-      self._ned.extract(e.entity)
-      for e in entities
-    ])
+    remaining_entities = entities[:]
+
+    all_entity_and_ned_result_lists = []
+
+    for ned_idx, ned in enumerate(self._neds):
+      if len(remaining_entities) > 0:
+        ned_results = await asyncio.gather(*[
+          ned.extract(e.entity, **kwargs)
+          for e in remaining_entities
+        ])
+
+        entity_and_ned_result_list = list(zip(remaining_entities, ned_results))
+
+        remaining_entities = [
+          entity
+          for entity, result in entity_and_ned_result_list
+          if len(result.entities) == 0 or result.entities[0].matched_resource is None
+        ]
+
+        if ned_idx < len(self._neds) - 1:
+          entity_and_ned_result_list = [
+            (entity, result)
+            for entity, result in entity_and_ned_result_list
+            if len(result.entities) > 0 and result.entities[0].matched_resource is not None
+          ]
+
+        all_entity_and_ned_result_lists.append(entity_and_ned_result_list)
 
 
-    entity_and_ned_result_list = zip(entities, ned_results)
-
+    entity_and_ned_result_list = flatten(all_entity_and_ned_result_lists)
     # we do not accept results when a single entity from NER
     # was found to be multiple entities by NED. Such results
     # are filtered out.

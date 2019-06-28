@@ -7,6 +7,8 @@ from .ner.spacy import SpacyNer
 from .ned.opentapioca import OpenTapiocaNed
 from .ned.gkg import GoogleKnowledgeGraphNed
 from .ned.fusion import FusionNed
+from .entities.store import EntitiesSetsStore
+from .ned.custom import CustomEntitiesSourceNed
 
 def lazy_factory(tag: str, app, constructor: Callable[[], object]):
   def factory():
@@ -26,6 +28,9 @@ def add_context(app):
   # cache
   app['cache'] = get_cache()
 
+  # Entities store
+  app['entities_store'] = EntitiesSetsStore()
+
   # NED/NER
   app['ner_flair'] = lazy_factory('ner_flair', app, FlairNer)
 
@@ -35,8 +40,12 @@ def add_context(app):
 
   app['ned_opentapioca'] = lazy_factory('ned_opentapioca', app, OpenTapiocaNed)
   app['ned_gkg'] = lazy_factory('ned_gkg', app, lambda: GoogleKnowledgeGraphNed(cache=app['cache']))
+  app['ned_custom_entities'] = lazy_factory('ned_custom_entities', app, lambda: CustomEntitiesSourceNed(app['entities_store']))
 
   app['ned_fusion-spacy_large_en-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_spacy_large_en']()], [app['ned_gkg']()]))
   app['ned_fusion-flair-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_flair']()], [app['ned_gkg']()]))
+  app['ned_fusion-flair-custom_entities'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities']()]))
+  app['ned_fusion-flair-custom_entities-gkg'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities'](), app['ned_gkg']()]))
+
 
   return app
