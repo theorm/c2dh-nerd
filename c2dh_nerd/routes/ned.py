@@ -8,7 +8,7 @@ from ..util.routes import json_dumps
 METHODS = [
   'opentapioca',
   'gkg',
-  'fusion-spacy_large_en-gkg',
+  # 'fusion-spacy_large_en-gkg',
   'fusion-flair-gkg',
   'custom_entities',
   'fusion-flair-custom_entities',

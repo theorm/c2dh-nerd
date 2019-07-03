@@ -36,16 +36,24 @@ def add_context(app):
 
   app['ner_spacy_small_en'] = lazy_factory('ner_spacy_small_en', app, lambda: SpacyNer('small_en'))
   app['ner_spacy_small_multi'] = lazy_factory('ner_spacy_small_multi', app, lambda: SpacyNer('small_multi'))
-  app['ner_spacy_large_en'] = lazy_factory('ner_spacy_large_en', app, lambda: SpacyNer('large_en'))
+  # app['ner_spacy_large_en'] = lazy_factory('ner_spacy_large_en', app, lambda: SpacyNer('large_en'))
 
   app['ned_opentapioca'] = lazy_factory('ned_opentapioca', app, OpenTapiocaNed)
   app['ned_gkg'] = lazy_factory('ned_gkg', app, lambda: GoogleKnowledgeGraphNed(cache=app['cache']))
   app['ned_custom_entities'] = lazy_factory('ned_custom_entities', app, lambda: CustomEntitiesSourceNed(app['entities_store']))
 
-  app['ned_fusion-spacy_large_en-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_spacy_large_en']()], [app['ned_gkg']()]))
+  # app['ned_fusion-spacy_large_en-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_spacy_large_en']()], [app['ned_gkg']()]))
   app['ned_fusion-flair-gkg'] = lazy_factory('ned_gkg', app, lambda: FusionNed([app['ner_flair']()], [app['ned_gkg']()]))
   app['ned_fusion-flair-custom_entities'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities']()]))
   app['ned_fusion-flair-custom_entities-gkg'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities'](), app['ned_gkg']()]))
 
 
   return app
+
+
+def get_data():
+  if str(os.environ.get('DOWNLOAD_MODELS', '')) == '1':
+    from spacy.cli import download
+    download('en_core_web_sm')
+    download('xx_ent_wiki_sm')
+    # download('en_core_web_lg')

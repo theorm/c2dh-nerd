@@ -9,7 +9,7 @@ METHODS = [
   'flair',
   'spacy_small_en',
   'spacy_small_multi',
-  'spacy_large_en'
+  # 'spacy_large_en'
 ]
 
 async def handler(request):

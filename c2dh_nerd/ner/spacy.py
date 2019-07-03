@@ -6,7 +6,7 @@ from .result import NerResult, NerResultEntity
 MODELS_MAPPING = {
   'small_en': 'en_core_web_sm',
   'small_multi': 'xx_ent_wiki_sm',
-  'large_en': 'en_core_web_lg'
+  # 'large_en': 'en_core_web_lg'
 }
 
 # Mapping to three standard wikidata classes: ORG, PER, LOC

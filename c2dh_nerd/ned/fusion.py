@@ -11,12 +11,13 @@ def has_text(ner_entity):
   return ANY_TEXT_RE.match(ner_entity.entity) is not None
 
 def merge_as_ned_result_entity(ner_entity, ned_entity):
-  ned_entity_resources = [r for r in ned_entity.resources if r.tag == ner_entity.tag]
+  resources = ned_entity.resources if ned_entity is not None else []
+  ned_entity_resources = [r for r in resources if r.tag == ner_entity.tag]
 
   # Now if nothing was found see if there is only one NED entity result regardless of the tag.
   # This may indicate the entity is rare and NER may have made a mistake classifyin it.
-  if len(ned_entity_resources) == 0 and len(ned_entity.resources) == 1:
-    ned_entity_resources = ned_entity.resources
+  if len(ned_entity_resources) == 0 and len(resources) == 1:
+    ned_entity_resources = resources
 
   return NedResultEntity(
     entity = ner_entity.entity,

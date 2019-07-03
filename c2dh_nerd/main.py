@@ -2,7 +2,7 @@ import os
 import traceback
 from aiohttp import web
 from . import routes
-from .context import add_context
+from .context import add_context, get_data
 
 @web.middleware
 async def error_handler_middleware(request, handler):
@@ -21,6 +21,7 @@ async def error_handler_middleware(request, handler):
 PORT = os.environ.get('PORT', 8002)
 
 def main():
+    get_data()
     app = web.Application(middlewares=[error_handler_middleware])
     app = add_context(app)
     app.add_routes([
