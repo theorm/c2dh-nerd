@@ -20,7 +20,7 @@ def as_ner_result_entity(span, offset: int) -> NerResultEntity:
 
 class FlairNer(NER):
   def __init__(self):
-    self._tagger = SequenceTagger.load('ner')
+    self._tagger = SequenceTagger.load('ner-fast')
 
   async def extract(self, text: TextOrSentences) -> NerResult:
     sentences_and_offsets = text_to_sentences(text)
