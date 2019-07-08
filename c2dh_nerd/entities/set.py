@@ -90,7 +90,11 @@ class EntitiesSet:
       )
 
   def get_by_id(self, id):
-    numeric_id = int(id)
+    try:
+      numeric_id = int(id)
+    except:
+      return None
+
     resource_id = id if numeric_id < len(self.rows) else None
     if resource_id is None:
       return None
