@@ -35,6 +35,7 @@ def as_ned_resource(t):
   return NedResource(
     score = t['rank'],
     model = 'opentapioca',
+    id = t['id'],
     tag = tag,
     label = t['label'][0],
     description = t['desc'],

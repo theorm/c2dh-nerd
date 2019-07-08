@@ -96,6 +96,7 @@ class EntitiesSet:
     resource_kwargs = {
       'score': result.score,
       'model': 'external:{}'.format(self.url),
+      'id': result['id'],
       'tag': row[type_idx] if row[type_idx] in ENTITY_TYPES else 'UNK',
       'label': row[name_idx]
     }

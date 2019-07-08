@@ -9,9 +9,13 @@ ENTITY_TYPES = [
 ]
 
 class NedResource:
-  def __init__(self, 
+  '''
+  Globally unique ID of the resource: [`model`, `id`].
+  '''
+  def __init__(self,
     score: float, # higher is better
-    model: str,
+    model: str, # model that was used to discover this resource.
+    id: str, # ID of the resource within this model.
     tag: str,
     label: str, 
     description: str = None,
@@ -25,6 +29,7 @@ class NedResource:
   ):
     self.score = score
     self.model = model
+    self.id = id
     self.tag = tag
     self.label = label
     self.description = description

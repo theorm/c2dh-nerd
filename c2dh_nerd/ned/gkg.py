@@ -31,6 +31,7 @@ def as_ned_resource(item):
   return NedResource(
     score = item.get('resultScore'),
     model = 'gkg',
+    id = result['@id'],
     tag = tag,
     label = result.get('name'),
     description = result.get('description', ''),
