@@ -55,6 +55,9 @@ class EntitiesSet:
     writer.commit()
 
     parser = QueryParser("name", self.index.schema)
+    self.exact_name_query_parser = parser
+
+    parser = QueryParser("name", self.index.schema)
     parser.add_plugin(FuzzyTermPlugin())
     self.name_query_parser = parser
 
@@ -86,6 +89,23 @@ class EntitiesSet:
         entities = [entity]
       )
 
+  def get_by_id(self, id):
+    numeric_id = int(id)
+    resource_id = id if numeric_id < len(self.rows) else None
+    if resource_id is None:
+      return None
+
+    return self.to_ned_result_item({ 'id': id })
+
+  def get_by_label(self, label):
+    with self.index.searcher(weighting=scoring.Frequency) as searcher:
+      query = self.exact_name_query_parser.parse(label)
+
+      results = searcher.search(query, limit=1)
+      resources = [self.to_ned_result_item(i) for i in results]
+
+      return resources[0] if len(resources) > 0 else None
+
   def to_ned_result_item(self, result):
     id = int(result['id'])
     row = self.rows[id]
@@ -94,7 +114,7 @@ class EntitiesSet:
     name_idx = self.headers.index(NAME_HEADER)
 
     resource_kwargs = {
-      'score': result.score,
+      'score': getattr(result, 'score', 1),
       'model': 'external:{}'.format(self.url),
       'id': result['id'],
       'tag': row[type_idx] if row[type_idx] in ENTITY_TYPES else 'UNK',

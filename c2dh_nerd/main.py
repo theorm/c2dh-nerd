@@ -28,6 +28,7 @@ def main():
         web.get('/status', routes.status.handler),
         web.post('/ner', routes.ner.handler),
         web.post('/ned', routes.ned.handler),
+        web.post('/entities/expand', routes.entities.expand_handler),
         web.post('/entities/load', routes.entities.load_handler),
         web.post('/entities/search', routes.entities.search_handler)
     ])
