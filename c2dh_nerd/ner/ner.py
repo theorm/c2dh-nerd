@@ -20,7 +20,15 @@ def text_to_sentences(text: TextOrSentences) -> List[Tuple[str, int]]:
       return x
 
     return [get_sentence_and_offset(sent) for sent in split_single(text) if len(sent.strip()) > 0]
-  return text
+  else:
+    last_offset = { 'v': 0 }
+
+    def get_sentence_and_offset(sent):
+      x = (last_offset['v'], sent)
+      last_offset['v'] += len(sent)
+      return x
+
+    return [(sentence, 0) for sentence in text]
 
 def sentences_to_text(text: TextOrSentences) -> str:
   if isinstance(text, str):
