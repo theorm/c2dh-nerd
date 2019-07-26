@@ -10,6 +10,7 @@ METHODS = [
   'spacy_small_en',
   'spacy_small_multi',
   # 'spacy_large_en'
+  'allennlp_finegrained'
 ]
 
 async def handler(request):

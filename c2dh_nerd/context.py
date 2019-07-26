@@ -4,6 +4,7 @@ from diskcache import Cache
 
 from .ner.flair import FlairNer
 from .ner.spacy import SpacyNer
+from .ner.allennlp import AllenNlpNer
 from .ned.opentapioca import OpenTapiocaNed
 from .ned.gkg import GoogleKnowledgeGraphNed
 from .ned.fusion import FusionNed
@@ -37,6 +38,8 @@ def add_context(app):
   app['ner_spacy_small_en'] = lazy_factory('ner_spacy_small_en', app, lambda: SpacyNer('small_en'))
   app['ner_spacy_small_multi'] = lazy_factory('ner_spacy_small_multi', app, lambda: SpacyNer('small_multi'))
   # app['ner_spacy_large_en'] = lazy_factory('ner_spacy_large_en', app, lambda: SpacyNer('large_en'))
+
+  app['ner_allennlp_finegrained'] = lazy_factory('ner_allennlp_finegrained', app, lambda: AllenNlpNer('fine-grained-ner'))
 
   app['ned_opentapioca'] = lazy_factory('ned_opentapioca', app, OpenTapiocaNed)
   app['ned_gkg'] = lazy_factory('ned_gkg', app, lambda: GoogleKnowledgeGraphNed(cache=app['cache']))
