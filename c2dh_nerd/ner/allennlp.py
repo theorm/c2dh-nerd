@@ -5,38 +5,11 @@ import torch
 
 from .ner import NER, TextOrSentences, text_to_sentences, sentences_to_text
 from .result import NerResult, NerResultEntity
+from .mapping import ONTONOTES_TO_WIKIPEDIA_LABEL_MAPPING
 
 MODELS_MAPPING = {
   'fine-grained-ner': 'https://s3-us-west-2.amazonaws.com/allennlp/models/fine-grained-ner-model-elmo-2018.12.21.tar.gz',
   'elmo-ner': 'https://s3-us-west-2.amazonaws.com/allennlp/models/ner-model-2018.12.18.tar.gz',
-}
-
-NER_LABEL_MAPPING = {
-  "PERSON": "PER", # "People, including fictional",
-  "NORP": "ORG", # "Nationalities or religious or political groups",
-  "FACILITY": "LOC", # "Buildings, airports, highways, bridges, etc.",
-  "FAC": "LOC", # "Buildings, airports, highways, bridges, etc.",
-  "ORG": "ORG", # "Companies, agencies, institutions, etc.",
-  "GPE": "LOC", # "Countries, cities, states",
-  "LOC": "LOC", # "Non-GPE locations, mountain ranges, bodies of water",
-  # "PRODUCT": "Objects, vehicles, foods, etc. (not services)",
-  # "EVENT": "Named hurricanes, battles, wars, sports events, etc.",
-  # "WORK_OF_ART": "Titles of books, songs, etc.",
-  # "LAW": "Named documents made into laws.",
-  # "LANGUAGE": "Any named language",
-  # "DATE": "Absolute or relative dates or periods",
-  # "TIME": "Times smaller than a day",
-  # "PERCENT": 'Percentage, including "%"',
-  # "MONEY": "Monetary values, including unit",
-  # "QUANTITY": "Measurements, as of weight or distance",
-  # "ORDINAL": '"first", "second", etc.',
-  # "CARDINAL": "Numerals that do not fall under another type",
-  # Named Entity Recognition
-  # Wikipedia
-  # http://www.sciencedirect.com/science/article/pii/S0004370212000276
-  # https://pdfs.semanticscholar.org/5744/578cc243d92287f47448870bb426c66cc941.pdf
-  "PER": "PER", # "Named person or family.",
-  # "MISC": "Miscellaneous entities, e.g. events, nationalities, products or works of art",
 }
 
 flatten = lambda l: [item for sublist in l for item in sublist]
@@ -48,7 +21,7 @@ def item_group_to_ner_result_entity(sentence: str, tag: str, word_token_paris: L
 
   return NerResultEntity(
     entity = entity,
-    tag = NER_LABEL_MAPPING.get(tag, None),
+    tag = ONTONOTES_TO_WIKIPEDIA_LABEL_MAPPING.get(tag, 'UNK'),
     left = pos_start + offset,
     right = pos_end + offset,
     score = 1.0

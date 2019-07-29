@@ -4,6 +4,7 @@ from flair.models import SequenceTagger
 
 from .ner import NER, TextOrSentences, text_to_sentences, sentences_to_text
 from .result import NerResult, NerResultEntity
+from .mapping import ONTONOTES_TO_WIKIPEDIA_LABEL_MAPPING
 
 flatten = lambda l: [item for sublist in l for item in sublist]
 
@@ -13,10 +14,11 @@ def as_ner_result_entity(span, offset: int, index: int, return_sentences = False
   left = span.start_pos if return_sentences else span.start_pos + offset
   right = span.end_pos if return_sentences else span.end_pos + offset
   sentence_index = index if return_sentences else None
+  tag = ONTONOTES_TO_WIKIPEDIA_LABEL_MAPPING.get(span.tag, 'UNK') 
 
   return NerResultEntity(
     entity = span.text,
-    tag = span.tag,
+    tag = tag,
     left = left,
     right = right,
     score = span.score,
