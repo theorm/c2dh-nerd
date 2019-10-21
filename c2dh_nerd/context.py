@@ -1,4 +1,6 @@
 import os
+import tempfile
+import logging
 from typing import Callable
 from diskcache import Cache
 
@@ -11,7 +13,7 @@ from .ned.fusion import FusionNed
 from .entities.store import EntitiesSetsStore
 from .ned.custom import CustomEntitiesSourceNed
 
-def lazy_factory(tag: str, app, constructor: Callable[[], object]):
+def lazy_factory(tag: str, app: dict, constructor: Callable[[], object]):
   def factory():
     instance_tag = '{}__instance'.format(tag)
     if instance_tag not in app:
@@ -20,12 +22,18 @@ def lazy_factory(tag: str, app, constructor: Callable[[], object]):
   return factory
 
 def get_cache():
-  cache_location = os.path.realpath(os.environ.get('CACHE_DIR', os.path.join(os.getcwd(), 'cache')))
-  print('Using "{}" as cache location'.format(cache_location))
+  default_tempdir = os.path.join(tempfile.gettempdir(), 'c2dh_nerd_cache')
+  try:
+    os.mkdir(default_tempdir)
+  except FileExistsError:
+    pass
+
+  cache_location = os.path.realpath(os.environ.get('CACHE_DIR', default_tempdir))
+  logging.debug('Using "{}" as cache location'.format(cache_location))
   assert os.path.isdir(cache_location), 'Cache directory does not exist'
   return Cache(cache_location)
 
-def add_context(app):
+def add_context(app: dict):
   # cache
   app['cache'] = get_cache()
 
@@ -60,3 +68,20 @@ def get_data():
     download('en_core_web_sm')
     download('xx_ent_wiki_sm')
     # download('en_core_web_lg')
+
+_ner_or_ned_cache = {}
+
+def get_ner_or_ned(tag):
+  if not bool(_ner_or_ned_cache):
+    get_data()
+    add_context(_ner_or_ned_cache)
+  factory = _ner_or_ned_cache.get(tag)
+  if factory:
+    return factory()
+  raise Exception(f'Unknown NER or NED method "{tag}"')
+
+def get_ner(tag):
+  return get_ner_or_ned(f'ner_{tag}')
+
+def get_ned(tag):
+  return get_ner_or_ned(f'ned_{tag}')
