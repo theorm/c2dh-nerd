@@ -51,6 +51,7 @@ class NedResultEntity:
     self.right = right
     self.resources = resources
     self.matched_resource = matched_resource
+    self.tag = matched_resource.tag if matched_resource is not None else None
 
     assert left < right, 'Left ({}) must be less than right ({})'.format(left, right)
 

@@ -43,6 +43,10 @@ def add_context(app: dict):
   # NED/NER
   app['ner_flair'] = lazy_factory('ner_flair', app, FlairNer)
 
+  app['ner_flair_en'] = lazy_factory('ner_flair', app, lambda: FlairNer('ner-ontonotes'))
+  app['ner_flair_fr'] = lazy_factory('ner_flair', app, lambda: FlairNer('fr-ner'))
+  app['ner_flair_de'] = lazy_factory('ner_flair', app, lambda: FlairNer('de-ner'))
+
   app['ner_spacy_small_en'] = lazy_factory('ner_spacy_small_en', app, lambda: SpacyNer('small_en'))
   app['ner_spacy_small_multi'] = lazy_factory('ner_spacy_small_multi', app, lambda: SpacyNer('small_multi'))
   # app['ner_spacy_large_en'] = lazy_factory('ner_spacy_large_en', app, lambda: SpacyNer('large_en'))
@@ -58,6 +62,8 @@ def add_context(app: dict):
   app['ned_fusion-flair-custom_entities'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities']()]))
   app['ned_fusion-flair-custom_entities-gkg'] = lazy_factory('ned_fusion-flair-custom_entities', app, lambda: FusionNed([app['ner_flair']()], [app['ned_custom_entities'](), app['ned_gkg']()]))
 
+  app['ned_fusion-flair-custom_entities-fr'] = lazy_factory('ned_fusion-flair-custom_entities-fr', app, lambda: FusionNed([app['ner_flair_fr']()], [app['ned_custom_entities']()]))
+  app['ned_fusion-flair-custom_entities-de'] = lazy_factory('ned_fusion-flair-custom_entities-de', app, lambda: FusionNed([app['ner_flair_fr']()], [app['ned_custom_entities']()]))
 
   return app
 
