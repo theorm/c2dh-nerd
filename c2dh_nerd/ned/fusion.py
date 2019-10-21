@@ -25,7 +25,8 @@ def merge_as_ned_result_entity(ner_entity, ned_entity):
     left = ner_entity.left,
     right = ner_entity.right,
     resources = ned_entity_resources,
-    matched_resource = ned_entity_resources[0] if len(ned_entity_resources) > 0 else None
+    matched_resource = ned_entity_resources[0] if len(ned_entity_resources) > 0 else None,
+    tag = ner_entity.tag
   )
 
 class FusionNed(NED):
