@@ -68,18 +68,20 @@ def add_context(app: dict):
   return app
 
 
-def get_data():
+def get_data(tag):
   if str(os.environ.get('DOWNLOAD_MODELS', '')) == '1':
     from spacy.cli import download
-    download('en_core_web_sm')
-    download('xx_ent_wiki_sm')
+    if tag == 'ner_en_core_web_sm':
+      download('en_core_web_sm')
+    if tag == 'xx_ent_wiki_sm':
+      download('xx_ent_wiki_sm')
     # download('en_core_web_lg')
 
 _ner_or_ned_cache = {}
 
 def get_ner_or_ned(tag):
   if not bool(_ner_or_ned_cache):
-    get_data()
+    get_data(tag)
     add_context(_ner_or_ned_cache)
   factory = _ner_or_ned_cache.get(tag)
   if factory:
