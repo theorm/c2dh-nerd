@@ -1,7 +1,7 @@
 aiohttp==3.5.4
 https://download.pytorch.org/whl/cpu/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
 flair==0.4.2
-numpy==1.16.4
+numpy==1.22.0
 spacy==2.1.4
 diskcache==3.1.1
 Whoosh==2.7.4
